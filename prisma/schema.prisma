@@ -1,0 +1,50 @@
+// schema.prisma
+
+datasource db {
+  //   provider = "postgresql"
+  //   url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:dev.db"
+}
+
+generator client {
+  provider             = "prisma-client-py"
+  interface            = "asyncio"
+  recursive_type_depth = 5
+}   
+
+model User {
+  id          String        @id @default(cuid())
+  username    String
+  email       String        @unique
+  password    String
+  fullName    String?
+  // Add other user fields as needed
+  idCards     IDCard[]
+  IDCardMatch IDCardMatch[]
+}
+
+model IDCard {
+  id          String        @id @default(cuid())
+  userId      String
+  user        User          @relation(fields: [userId], references: [id])
+  fullName    String
+  dateOfBirth DateTime
+  nationality String
+  idNumber    String
+  issueDate   DateTime
+  expiryDate  DateTime
+  photoUrl    String
+  // Add other ID card fields as needed
+  matches     IDCardMatch[]
+}
+
+model IDCardMatch {
+  id         String @id @default(cuid())
+  userId     String
+  user       User   @relation(fields: [userId], references: [id])
+  cardId     String
+  idCard     IDCard @relation(fields: [cardId], references: [id])
+  matchScore Float
+  // Add other match fields as needed
+}
